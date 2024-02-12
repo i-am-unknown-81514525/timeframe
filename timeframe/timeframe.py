@@ -148,7 +148,7 @@ class Attempt(BaseFrame):
         return super().__exit__(exc_type, exc_val, exc_tb)
 
     def __repr__(self) -> str:
-        return super().__repr__() + f" ({self._add_string})" if self._add_string else ""
+        return super().__repr__() + (f" ({self._add_string})" if self._add_string else "")
 
 
 class Action(BaseFrame):
