@@ -1,9 +1,15 @@
 # timeframe
 Python timeframe tool for time monitoring for each event, error handling, traceback recording...
 
+# How to install
+```shell
+pip install timeframe_event
+```
+
 # Example
 ```python
-import random
+import random, time
+from timeframe import TimeFrame
 with TimeFrame(name='Text request') as time_frame:
     with time_frame.create(name='Prompt') as group_prompt:
         with group_prompt.create(name='Prompt request', retries=5) as event_frame:
