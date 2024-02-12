@@ -1,11 +1,11 @@
-from src.timeframe import TimeFrame
+from timeframe import TimeFrame
 
 def test() -> None:
     import random, time
 
     with TimeFrame(name='Text request') as time_frame:
         with time_frame.create(name='Prompt') as group_prompt:
-            with group_prompt.create(name='Prompt request', retries=5) as event_frame:
+            with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
                 function_call = False
                 for frame in event_frame:
                     with frame:
@@ -14,6 +14,8 @@ def test() -> None:
                             raise ValueError  # Stimulate a complete random chance of a network error occur
                         if random.random() < 0.9:
                             function_call = True
+                        if random.random() < 0.8:
+                            raise TimeoutError
             if function_call:
                 with group_prompt.create(name='Function call `mul`', retries=0):
                     time.sleep(random.uniform(0, 0.01))  # Stimulate doing network operation
