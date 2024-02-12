@@ -14,9 +14,22 @@ requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    "Operation System :: OS Independent"
+    "Operating System :: OS Independent"
 ]
 
 [project.urls]
 Homepage = "https://github.com/i-am-unknown-81514525/timeframe/tree/main"
 Issues = "https://github.com/i-am-unknown-81514525/timeframe/issues"
+
+[tool.poetry]
+description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
+name = "timeframe_event"
+version = "1.0.0"
+authors = ["i-am-unknown <iamaunknownpeople@protonmail.com>"]
+readme = 'README.md'
+repository = "https://github.com/i-am-unknown-81514525/timeframe/tree/main"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent"
+]

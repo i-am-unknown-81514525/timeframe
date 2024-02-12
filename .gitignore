@@ -11,6 +11,7 @@
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+.pypirc
 
 ### PythonVanilla template
 # Byte-compiled / optimized / DLL files
@@ -204,3 +205,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+!/.pypirc
+!/.pypirc
