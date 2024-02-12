@@ -1,4 +1,4 @@
-from timeframe import TimeFrame
+from src.timeframe import TimeFrame
 
 def test() -> None:
     import random, time

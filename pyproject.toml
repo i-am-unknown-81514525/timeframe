@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
+name = "timeframe_event"
+version = "1.0.0"
+authors = [
+    {"name"="i-am-unknown", "email"="iamaunknownpeople@protonmail.com"}
+]
+readme = 'README.md'
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operation System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/i-am-unknown-81514525/timeframe/tree/main"
+Issues = "https://github.com/i-am-unknown-81514525/timeframe/issues"
