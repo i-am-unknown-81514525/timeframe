@@ -247,7 +247,7 @@ class TimeFrame(BaseFrame):
         index += 1
         if index > limit or isinstance(source, Attempt):
             return
-        if isinstance(source, Action) and len(source._frames) == 1:
+        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
             return
         for item in source._frames:
             self._recur_dc(content, index=index, source=item, limit=limit)
@@ -261,7 +261,7 @@ class TimeFrame(BaseFrame):
         content += [f'{"  " * index}{source.__repr__()}']
         if isinstance(source, Attempt):
             return
-        if isinstance(source, Action) and len(source._frames) == 1:
+        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
             return
         index += 1
         for item in source._frames:
