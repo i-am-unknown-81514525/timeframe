@@ -143,9 +143,12 @@ class Attempt(BaseFrame):
             return super().__exit__(exc_type, exc_val, exc_tb)
         if exc_type in self._parent.ignore_retries:
             super().__exit__(exc_type, exc_val, exc_tb)
-            self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type}'
+            self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type.__name__}'
             return False
         return super().__exit__(exc_type, exc_val, exc_tb)
+
+    def __repr__(self) -> str:
+        return super().__repr__() + f" ({self._add_string})" if self._add_string else ""
 
 
 class Action(BaseFrame):
@@ -199,8 +202,8 @@ class Event(BaseFrame):
         self._frames: MutableSequence[Action] = []
         super().__init__(name=name)
 
-    def create(self, name: Optional[str] = None, retries: int = 3) -> Action:
-        event = Action(main=self._main, parent=self, name=name, retries=retries)
+    def create(self, name: Optional[str] = None, retries: int = 3, ignore_retries: Optional[Sequence[Type[BaseException]]] = None) -> Action:
+        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries)
         self._frames.append(event)
         return event
 
