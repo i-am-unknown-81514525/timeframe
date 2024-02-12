@@ -41,6 +41,10 @@ class IterationFailed(StopIteration):
     pass
 
 
+def get_exc_src(exc_type: Type[BaseException]) -> str:
+    return exc_type.__module__ + "." if exc_type.__module__ is not None and exc_type.__module__ != str.__module__ else ""
+
+
 class BaseFrame:
     def __init__(self, name: Optional[str] = None):
         self._name = name
@@ -130,11 +134,25 @@ class Attempt(BaseFrame):
     def __init__(self, main: TimeFrame, parent: Action):
         self._main = main
         self._parent = parent
+        self._add_string = ''
         super().__init__(name=f'Attempt #{self._parent.curr_retries + 1}')
+
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                 exc_tb: Optional[types.TracebackType]) -> bool:
+        if exc_type is None:
+            return super().__exit__(exc_type, exc_val, exc_tb)
+        if exc_type in self._parent.ignore_retries:
+            super().__exit__(exc_type, exc_val, exc_tb)
+            self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type}'
+            return False
+        return super().__exit__(exc_type, exc_val, exc_tb)
 
 
 class Action(BaseFrame):
-    def __init__(self, main: TimeFrame, parent: Event, name: Optional[str] = None, retries: int = 3):
+    def __init__(self, main: TimeFrame, parent: Event, name: Optional[str] = None, retries: int = 3,
+                 ignore_retries: Optional[Sequence[Type[BaseException]]] = None):
+        real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
+        self._ignore_retries = real_ignore_retries
         self._main = main
         self._parent = parent
         self._frames: MutableSequence[Attempt] = []
@@ -168,6 +186,10 @@ class Action(BaseFrame):
     @property
     def retries(self) -> int:
         return self._retries
+
+    @property
+    def ignore_retries(self) -> Sequence[Type[BaseException]]:
+        return self._ignore_retries
 
 
 class Event(BaseFrame):
