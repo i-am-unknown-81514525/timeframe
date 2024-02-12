@@ -29,7 +29,7 @@ with TimeFrame(name='Text request') as time_frame:
 
 ```
 
-```python
+```
 >>> print(time_frame.traceback_format())
 [596869.233s] Error raised on Attempt 'Attempt #1' from parent 'Prompt request' at TimeFrame 'Text request':
 Traceback (most recent call last):
@@ -68,7 +68,7 @@ Traceback (most recent call last):
 ValueError
 ```
 
-```python
+```
 >>> print(time_frame.frame_format_dc(limit=1024)) #Character limit of discord embed field value
 Total: 0001.252s (Total Frames: 11)
 ✅-Prompt (0001.252s)
@@ -85,7 +85,7 @@ Total: 0001.252s (Total Frames: 11)
 Example: 
 ![image](https://github.com/i-am-unknown-81514525/timeframe/assets/74453352/4b69b30a-f275-4172-bf28-2af999e5c577)
 
-```python
+```
 >>> print(time_frame.frame_format_mono()) # Use of export as file or display on console
 Total: 0001.252s (Total Frames: 11)
 ✅-Text request (0001.252s)
