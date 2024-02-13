@@ -76,7 +76,7 @@ class BaseFrame:
                         break
                 else:
                     self.state = State.FAILED
-        if self.state != State.ISSUE and self.state != State.FAILED and self.state != State.FATAL:
+        if self.state not in (State.ISSUE, State.FAILED, State.FATAL):
             self.state = State.SUCCESS
         return self
 
