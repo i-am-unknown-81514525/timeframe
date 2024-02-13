@@ -76,19 +76,19 @@ class BaseFrame:
                         break
                 else:
                     self.state = State.FAILED
-        if self.state != State.ISSUE and self.state != State.FAILED:
+        if self.state != State.ISSUE and self.state != State.FAILED and self.state != State.FATAL:
             self.state = State.SUCCESS
         return self
 
     def failed(self, is_issue: bool = False, tb: Optional[str] = None) -> Self:
         self._end = time.perf_counter()
         self.state = State.FAILED if not is_issue else State.ISSUE
-        if self.state == State.FAILED:
+        if self.state == State.FAILED or self.state == State.FATAL:
             if isinstance(self, Attempt):
                 self._parent.state = State.ISSUE
             if isinstance(self, (Event, Action)):
                 self._parent.state = State.FAILED
-        if tb and self.state == State.FAILED:
+        if tb and self.state == State.FAILED or self.state == State.FATAL:
             added_string1 = ''
             if isinstance(self, (Attempt, Event, Action)):
                 added_string1 += f'from parent \'{self._parent._name}\' '
@@ -125,7 +125,7 @@ class BaseFrame:
         else:
             self.failed(tb='\n'.join(traceback.format_exception(exc_type, exc_val, exc_tb)))
         if isinstance(self, Attempt):
-            if self.state != State.FAILED:
+            if self.state != State.FAILED and self.state != State.FATAL:
                 raise IterationCompleted(f'Task have been completed')
             if self._parent.curr_retries >= self._parent.retries:
                 raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
