@@ -106,3 +106,18 @@ Total: 0001.252s (Total Frames: 11)
       ❌-Attempt #2 (0000.139s)
       ✅-Attempt #3 (0000.111s)
 ```
+
+```pycon
+print(timeframe.frame_format_custom()) # Default with markdown
+```
+Total: 0000.826s (Total Frames: 11)
+
+✅-Prompt (0000.826s)
+-  ⚠️-Prompt request (0000.690s)
+> - ❌-Attempt #1 (0000.135s)
+> - ❌-Attempt #2 (0000.020s)
+> - ❌-Attempt #3 (0000.126s)
+> - ❌-Attempt #4 (0000.349s)
+> - ✅-Attempt #5 (0000.060s)
+-  ✅-Function call `mul` (0000.004s)
+-  ✅-Function Response (0000.132s)

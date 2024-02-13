@@ -1,7 +1,9 @@
 from timeframe import TimeFrame
 
+
 def test() -> None:
-    import random, time
+    import random
+    import time
 
     with TimeFrame(name='Text request') as time_frame:
         with time_frame.create(name='Prompt') as group_prompt:
@@ -28,6 +30,7 @@ def test() -> None:
     print(time_frame.traceback_format())
     print(time_frame.frame_format_dc())
     print(time_frame.frame_format_mono())
+    print(time_frame.frame_format_custom())
 
 
 if __name__ == '__main__':

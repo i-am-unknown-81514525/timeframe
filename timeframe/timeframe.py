@@ -202,7 +202,8 @@ class Event(BaseFrame):
         self._frames: MutableSequence[Action] = []
         super().__init__(name=name)
 
-    def create(self, name: Optional[str] = None, retries: int = 3, ignore_retries: Optional[Sequence[Type[BaseException]]] = None) -> Action:
+    def create(self, name: Optional[str] = None, retries: int = 3,
+               ignore_retries: Optional[Sequence[Type[BaseException]]] = None) -> Action:
         event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries)
         self._frames.append(event)
         return event
@@ -266,6 +267,24 @@ class TimeFrame(BaseFrame):
         index += 1
         for item in source._frames:
             self._recur_mono(content, index=index, source=item)
+
+    def frame_format_custom(self, style: tuple[str | None, str | None, str | None, str | None] = (
+    None, '\n', '-  ', '> - ')) -> str:
+        content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
+        self._recur_custom(content, self, style=style)
+        return '\n'.join(content)
+
+    def _recur_custom(self, content: list[str], source: TimeFrame | Event | Action | Attempt,
+                      style: tuple[str | None, str | None, str | None, str | None], index: int = 0, ) -> None:
+        if index != 0:
+            content += [f'{style[index]}{source.__repr__()}']
+        index += 1
+        if isinstance(source, Attempt):
+            return
+        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
+            return
+        for item in source._frames:
+            self._recur_custom(content, index=index, source=item, style=style)
 
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
