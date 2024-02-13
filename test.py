@@ -12,12 +12,12 @@ def test() -> None:
                 for frame in event_frame:
                     with frame:
                         time.sleep(random.uniform(0, 0.4))  # Stimulate doing network operation
-                        if random.random() < 0.7:
+                        if random.random() < 0.2:
                             raise ValueError  # Stimulate a complete random chance of a network error occur
+                        if random.random() < 0.3:
+                            raise TimeoutError
                         if random.random() < 0.9:
                             function_call = True
-                        if random.random() < 0.8:
-                            raise TimeoutError
             if function_call:
                 with group_prompt.create(name='Function call `mul`', retries=0):
                     time.sleep(random.uniform(0, 0.01))  # Stimulate doing network operation
@@ -28,8 +28,11 @@ def test() -> None:
                             if random.random() < 0.7:
                                 raise ValueError  # Stimulate a complete random chance of a network error occur
     print(time_frame.traceback_format())
+    print('---Display on discord---')
     print(time_frame.frame_format_dc())
+    print('---Display on mono---')
     print(time_frame.frame_format_mono())
+    print('---Display on markdown---')
     print(time_frame.frame_format_custom())
 
 
