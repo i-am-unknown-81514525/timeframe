@@ -82,7 +82,8 @@ class BaseFrame:
 
     def failed(self, is_issue: bool = False, tb: Optional[str] = None) -> Self:
         self._end = time.perf_counter()
-        self.state = State.FAILED if not is_issue else State.ISSUE
+        if self.state not in (State.FATAL, State.FAILED):
+            self.state = State.FAILED if not is_issue else State.ISSUE
         if self.state in (State.FAILED, State.FATAL):
             if isinstance(self, Attempt):
                 self._parent.state = State.ISSUE
