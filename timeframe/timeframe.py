@@ -13,6 +13,7 @@ class Emoji(enum.Enum):
     LOADING = '⏳'
     ISSUE = '⚠️'
     FAILED = '❌'
+    FATAL = '🛑'
 
     @classmethod
     def translate(cls, state: State) -> Emoji:
@@ -25,7 +26,8 @@ class State(enum.Enum):
     SUCCESS = 0x8000
     LOADING = 0xb000
     ISSUE = 0xf000
-    FAILED = 0xffff
+    FAILED = 0xfff0
+    FATAL = 0xffff
 
     @classmethod
     def translate(cls, state: Emoji) -> State:
