@@ -145,6 +145,7 @@ class Attempt(BaseFrame):
             return super().__exit__(exc_type, exc_val, exc_tb)
         if exc_type in self._parent.ignore_retries:
             super().__exit__(exc_type, exc_val, exc_tb)
+            self.state = State.FATAL
             self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type.__name__}'
             return False
         return super().__exit__(exc_type, exc_val, exc_tb)
