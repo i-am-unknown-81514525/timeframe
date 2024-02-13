@@ -270,13 +270,14 @@ class TimeFrame(BaseFrame):
 
     def frame_format_custom(self, style: tuple[str | None, str | None, str | None, str | None] = (
     None, '\n', '-  ', '> - ')) -> str:
+        """Use None on the index you don't want it to display in `style`, default at normal markdown settings"""
         content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
         self._recur_custom(content, self, style=style)
         return '\n'.join(content)
 
     def _recur_custom(self, content: list[str], source: TimeFrame | Event | Action | Attempt,
                       style: tuple[str | None, str | None, str | None, str | None], index: int = 0, ) -> None:
-        if index != 0:
+        if style[index] is not None:
             content += [f'{style[index]}{source.__repr__()}']
         index += 1
         if isinstance(source, Attempt):
