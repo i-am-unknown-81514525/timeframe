@@ -51,8 +51,20 @@ class BaseFrame:
     def __init__(self, name: Optional[str] = None):
         self._name = name
         self._start: Optional[float] = None
-        self.state: State = State.FUTURE
+        self._state: State = State.FUTURE
         self._end: Optional[float] = None
+
+    @property
+    def state(self) -> State:
+        return self._state
+
+    @state.setter
+    def state(self, state: State):
+        if not isinstance(state, State):
+            raise ValueError(f'You can only set state with State enum')
+        if state.value <= self._state.value:
+            return
+        self._state = state
 
     @property
     def duration(self) -> float:
