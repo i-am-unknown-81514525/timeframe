@@ -72,7 +72,7 @@ class BaseFrame:
         if isinstance(self, (Action, Event, TimeFrame)):
             if self._frames:
                 for frame in self._frames:
-                    if frame.state not in [State.FAILED, State.FATAL]:
+                    if frame.state not in (State.FAILED, State.FATAL):
                         break
                 else:
                     self.state = State.FAILED
