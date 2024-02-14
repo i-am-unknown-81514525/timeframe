@@ -84,23 +84,24 @@ class BaseFrame:
         self._end = time.perf_counter()
         if self.state not in (State.FATAL, State.FAILED):
             self.state = State.FAILED if not is_issue else State.ISSUE
-        if self.state in (State.FAILED, State.FATAL):
-            if isinstance(self, Attempt):
-                self._parent.state = State.ISSUE
-            if isinstance(self, (Event, Action)):
-                self._parent.state = State.FAILED
-            if tb:
-                added_string1 = ''
-                if isinstance(self, (Attempt, Event, Action)):
-                    added_string1 += f'from parent \'{self._parent._name}\' '
-                    added_string1 += f'at TimeFrame \'{self._main._name}\''
-                if isinstance(self, TimeFrame):
-                    added_string1 += f'at TimeFrame \'{self._name}\''
-                formatted = f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\' {added_string1} with State {self.state.name}:\n{tb}'
-                if isinstance(self, (Attempt, Event, Action)):
-                    self._main._tb.append(formatted)
-                if isinstance(self, TimeFrame):
-                    self._tb.append(formatted)
+        if self.state == State.ISSUE:
+            return self
+        if isinstance(self, Attempt):
+            self._parent.state = State.ISSUE
+        if isinstance(self, (Event, Action)):
+            self._parent.state = State.FAILED
+        if tb:
+            added_string1 = ''
+            if isinstance(self, (Attempt, Event, Action)):
+                added_string1 += f'from parent \'{self._parent._name}\' '
+                added_string1 += f'at TimeFrame \'{self._main._name}\''
+            if isinstance(self, TimeFrame):
+                added_string1 += f'at TimeFrame \'{self._name}\''
+            formatted = f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\' {added_string1} with State {self.state.name}:\n{tb}'
+            if isinstance(self, (Attempt, Event, Action)):
+                self._main._tb.append(formatted)
+            if isinstance(self, TimeFrame):
+                self._tb.append(formatted)
         return self
 
     def __repr__(self) -> str:
@@ -273,7 +274,7 @@ class TimeFrame(BaseFrame):
             self._recur_mono(content, index=index, source=item)
 
     def frame_format_custom(self, style: tuple[str | None, str | None, str | None, str | None] = (
-    None, '\n', '-  ', '> - ')) -> str:
+            None, '\n', '-  ', '> - ')) -> str:
         """Use None on the index you don't want it to display in `style`, default at normal markdown settings"""
         content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
         self._recur_custom(content, self, style=style)
