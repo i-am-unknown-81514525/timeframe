@@ -28,8 +28,8 @@ class Emoji(enum.Enum):
 
 class State(enum.Enum):
     FUTURE = 0x4000
-    SUCCESS = 0x8000
-    LOADING = 0xb000
+    LOADING = 0x8000
+    SUCCESS = 0xb000
     ISSUE = 0xf000
     FAILED = 0xfff0
     FATAL = 0xffff
