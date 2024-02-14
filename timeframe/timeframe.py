@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import types
 from typing import *
 from collections.abc import Callable
 import enum
 import time
 import traceback
+import inspect
 
 A = TypeVar('A')
 K = TypeVar('K')
@@ -150,7 +152,7 @@ class BaseFrame:
 
 
 class Attempt(BaseFrame):
-    def __init__(self, main: TimeFrame, parent: Action):
+    def __init__(self, main: TimeFrame[A, K], parent: Action):
         self._main = main
         self._parent = parent
         self._add_string = ''
@@ -172,7 +174,7 @@ class Attempt(BaseFrame):
 
 
 class Action(BaseFrame):
-    def __init__(self, main: TimeFrame, parent: Event, name: Optional[str] = None, retries: int = 3,
+    def __init__(self, main: TimeFrame[A, K], parent: Event, name: Optional[str] = None, retries: int = 3,
                  ignore_retries: Optional[Sequence[Type[BaseException]]] = None):
         real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
         self._ignore_retries = real_ignore_retries
@@ -216,7 +218,7 @@ class Action(BaseFrame):
 
 
 class Event(BaseFrame):
-    def __init__(self, main: TimeFrame, parent: TimeFrame, name: Optional[str] = None):
+    def __init__(self, main: TimeFrame[A, K], parent: TimeFrame[A, K], name: Optional[str] = None):
         self._main = main
         self._parent = parent
         self._frames: MutableSequence[Action] = []
@@ -237,11 +239,12 @@ def _get_space_dc(index: int) -> str:
     return ''
 
 
-class TimeFrame(BaseFrame):
-    def __init__(self, name: Optional[str] = None, rt: Optional[Callable[[TimeFrame, A, K], Any]] = None, *args: A, **kwargs: K):
+class TimeFrame(BaseFrame, Generic[A, K]):
+    def __init__(self, name: Optional[str] = None, rt: Union[Callable[..., Any], None] = None, *args: A, **kwargs: K):
         self._frames: MutableSequence[Event] = []
         self._tb: list[str] = []
-        self._rt: tuple[Callable[[TimeFrame, A, K], Any], tuple[A, ...], dict[str, K]] | tuple[None, None, None] = (rt, args, kwargs) if rt else (None, None, None)
+        self._rt: tuple[Optional[Callable[..., Any]], tuple[A, ...], dict[str, K]] = (rt, args, kwargs)
+        self._re: Any = None
         super().__init__(name=name)
 
     def create(self, name: Optional[str] = None) -> Event:
@@ -262,7 +265,7 @@ class TimeFrame(BaseFrame):
         self._recur_dc(content, self, limit=limit)
         return '\n'.join(content)
 
-    def _recur_dc(self, content: list[str], source: TimeFrame | Event | Action | Attempt, index: int = 0,
+    def _recur_dc(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt, index: int = 0,
                   limit: int = 3) -> None:
         if index != 0:
             content += [f'{_get_space_dc(index)}{source.__repr__()}']
@@ -279,7 +282,7 @@ class TimeFrame(BaseFrame):
         self._recur_mono(content, self, index=0)
         return '\n'.join(content)
 
-    def _recur_mono(self, content: list[str], source: TimeFrame | Event | Action | Attempt, index: int = 0, ) -> None:
+    def _recur_mono(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt, index: int = 0, ) -> None:
         content += [f'{"  " * index}{source.__repr__()}']
         if isinstance(source, Attempt):
             return
@@ -296,7 +299,7 @@ class TimeFrame(BaseFrame):
         self._recur_custom(content, self, style=style)
         return '\n'.join(content)
 
-    def _recur_custom(self, content: list[str], source: TimeFrame | Event | Action | Attempt,
+    def _recur_custom(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt,
                       style: tuple[str | None, str | None, str | None, str | None], index: int = 0, ) -> None:
         if style[index] is not None:
             content += [f'{style[index]}{source.__repr__()}']
@@ -307,6 +310,25 @@ class TimeFrame(BaseFrame):
             return
         for item in source._frames:
             self._recur_custom(content, index=index, source=item, style=style)
+
+    async def _trigger_async(self) -> Any:
+        if self._rt[0] != None:
+            _rt =  cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
+            if inspect.iscoroutinefunction(self._rt[0]):
+                self._re = await _rt[0](self, *_rt[1], **_rt[2])
+            else:
+                self._re = await asyncio.to_thread(_rt[0], self, *_rt[1], **_rt[2])
+            return self._re
+
+    def _trigger_sync(self) -> Any:
+        if self._rt[0] != None:
+            _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
+            _re = _rt[0](self, *_rt[1], **_rt[2])
+            if inspect.isawaitable(_re):
+                self._re = asyncio.get_event_loop().run_until_complete(_re)
+            else:
+                self._re = _re
+            return self._re
 
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
