@@ -89,18 +89,18 @@ class BaseFrame:
                 self._parent.state = State.ISSUE
             if isinstance(self, (Event, Action)):
                 self._parent.state = State.FAILED
-        if tb and self.state in (State.FAILED, State.FATAL):
-            added_string1 = ''
-            if isinstance(self, (Attempt, Event, Action)):
-                added_string1 += f'from parent \'{self._parent._name}\' '
-                added_string1 += f'at TimeFrame \'{self._main._name}\''
-            if isinstance(self, TimeFrame):
-                added_string1 += f'at TimeFrame \'{self._name}\''
-            formatted = f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\' {added_string1} with State {self.state.name}:\n{tb}'
-            if isinstance(self, (Attempt, Event, Action)):
-                self._main._tb.append(formatted)
-            if isinstance(self, TimeFrame):
-                self._tb.append(formatted)
+            if tb:
+                added_string1 = ''
+                if isinstance(self, (Attempt, Event, Action)):
+                    added_string1 += f'from parent \'{self._parent._name}\' '
+                    added_string1 += f'at TimeFrame \'{self._main._name}\''
+                if isinstance(self, TimeFrame):
+                    added_string1 += f'at TimeFrame \'{self._name}\''
+                formatted = f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\' {added_string1} with State {self.state.name}:\n{tb}'
+                if isinstance(self, (Attempt, Event, Action)):
+                    self._main._tb.append(formatted)
+                if isinstance(self, TimeFrame):
+                    self._tb.append(formatted)
         return self
 
     def __repr__(self) -> str:
