@@ -1,11 +1,13 @@
 from timeframe import TimeFrame
 
+def func(timeframe: TimeFrame, *args, **kwargs):
+    print(timeframe.frame_format_mono())
 
 def test() -> None:
     import random
     import time
 
-    with TimeFrame(name='Text request') as time_frame:
+    with TimeFrame(name='Text request', rt=func) as time_frame:
         with time_frame.create(name='Prompt') as group_prompt:
             with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
                 function_call = False

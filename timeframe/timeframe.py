@@ -169,6 +169,17 @@ class Attempt(BaseFrame):
             return False
         return super().__exit__(exc_type, exc_val, exc_tb)
 
+    def __enter__(self, triggered: bool = False) -> Self:
+        if not triggered:
+            self._main._trigger_sync()
+        return super().__enter__()
+    async def __aenter__(self) -> Self:
+        await self._main._trigger_async()
+        return self.__enter__(triggered=True)
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool:
+        return self.__exit__(exc_type, exc_val, exc_tb)
+
     def __repr__(self) -> str:
         return super().__repr__() + (f" ({self._add_string})" if self._add_string else "")
 
