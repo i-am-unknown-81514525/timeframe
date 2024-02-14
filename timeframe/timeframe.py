@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import types
 from typing import *
+from collections.abc import Callable
 import enum
 import time
 import traceback
 
+A = TypeVar('A')
+K = TypeVar('K')
 
 class Emoji(enum.Enum):
     SUCCESS = '✅'
@@ -59,7 +62,7 @@ class BaseFrame:
         return self._state
 
     @state.setter
-    def state(self, state: State):
+    def state(self, state: State) -> None:
         if not isinstance(state, State):
             raise ValueError(f'You can only set state with State enum')
         if state.value <= self._state.value:
@@ -235,9 +238,10 @@ def _get_space_dc(index: int) -> str:
 
 
 class TimeFrame(BaseFrame):
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None, rt: Optional[Callable[[TimeFrame, A, K], Any]] = None, *args: A, **kwargs: K):
         self._frames: MutableSequence[Event] = []
         self._tb: list[str] = []
+        self._rt: tuple[Callable[[TimeFrame, A, K], Any], tuple[A, ...], dict[str, K]] | tuple[None, None, None] = (rt, args, kwargs) if rt else (None, None, None)
         super().__init__(name=name)
 
     def create(self, name: Optional[str] = None) -> Event:
