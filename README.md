@@ -5,6 +5,10 @@ Python timeframe tool for time monitoring for each event, error handling, traceb
 ```shell
 pip install timeframe_event
 ```
+You can also copy timeframe.py from [GitHub](https://github.com/i-am-unknown-81514525/timeframe/blob/main/timeframe/timeframe.py)
+and drop it in your project
+
+This project/file only uses standard libraries so installation of additional dependency is not required
 
 # Example
 ```python
