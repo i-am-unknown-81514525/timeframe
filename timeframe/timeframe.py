@@ -150,6 +150,13 @@ class BaseFrame:
                 raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
         return True
 
+    async def __aenter__(self) -> Self:
+        return self.__enter__()
+
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                        exc_tb: Optional[types.TracebackType]) -> bool:
+        return self.__exit__(exc_type, exc_val, exc_tb)
+
 
 class Attempt(BaseFrame):
     def __init__(self, main: TimeFrame[A, K], parent: Action):
