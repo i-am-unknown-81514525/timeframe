@@ -300,7 +300,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._recur_mono(content, self, index=0)
         return '\n'.join(content)
 
-    def print_mono(self):
+    def print_mono(self) -> None:
         print(self.frame_format_mono())
 
     def _recur_mono(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt, index: int = 0, ) -> None:
