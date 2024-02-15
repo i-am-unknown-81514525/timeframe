@@ -155,7 +155,13 @@ class BaseFrame:
 
     async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
                         exc_tb: Optional[types.TracebackType]) -> bool:
-        return self.__exit__(exc_type, exc_val, exc_tb)
+        try:
+            result = self.__exit__(exc_type, exc_val, exc_tb)
+            return result
+        except IterationCompleted:
+            return True
+        except:
+            return False
 
 
 class Attempt(BaseFrame):
