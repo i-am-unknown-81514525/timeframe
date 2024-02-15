@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
 name = "timeframe_event"
-version = "1.1.1"
+version = "1.1.2"
 authors = [
     {"name"="i-am-unknown", "email"="iamaunknownpeople@protonmail.com"}
 ]
@@ -24,7 +24,7 @@ Issues = "https://github.com/i-am-unknown-81514525/timeframe/issues"
 [tool.poetry]
 description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
 name = "timeframe_event"
-version = "1.1.1"
+version = "1.1.2"
 authors = ["i-am-unknown <iamaunknownpeople@protonmail.com>"]
 readme = 'README.md'
 repository = "https://github.com/i-am-unknown-81514525/timeframe/tree/main"
