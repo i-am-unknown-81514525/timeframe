@@ -264,7 +264,7 @@ def _get_space_dc(index: int) -> str:
 
 
 class TimeFrame(BaseFrame, Generic[A, K]):
-    def __init__(self, name: Optional[str] = None, rt: Union[Callable[..., Any], None] = None, *args: A, **kwargs: K):
+    def __init__(self, *args: A, name: Optional[str] = None, rt: Union[Callable[..., Any], None] = None, **kwargs: K):
         self._frames: MutableSequence[Event] = []
         self._tb: list[str] = []
         self._rt: tuple[Optional[Callable[..., Any]], tuple[A, ...], dict[str, K]] = (rt, args, kwargs)

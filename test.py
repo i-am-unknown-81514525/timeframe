@@ -2,14 +2,17 @@ import asyncio
 
 from timeframe import TimeFrame
 
+
 async def func(timeframe: TimeFrame, *args, **kwargs):
     timeframe.print_mono()
+    print(args, kwargs)
+
 
 async def test() -> None:
     import random
     import time
 
-    with TimeFrame(name='Text request', rt=func) as time_frame:
+    with TimeFrame('test', name='Text request', rt=func, test='test') as time_frame:
         with time_frame.create(name='Prompt') as group_prompt:
             with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
                 function_call = False
