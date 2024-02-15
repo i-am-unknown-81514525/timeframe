@@ -163,6 +163,7 @@ class Attempt(BaseFrame):
         self._main = main
         self._parent = parent
         self._add_string = ''
+        self._rt_completed: bool = False
         super().__init__(name=f'Attempt #{self._parent.curr_retries + 1}')
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
@@ -176,15 +177,18 @@ class Attempt(BaseFrame):
             return False
         return super().__exit__(exc_type, exc_val, exc_tb)
 
-    def __enter__(self, triggered: bool = False) -> Self:
-        if not triggered:
+    def __enter__(self) -> Self:
+        if not self._rt_completed:
             self._main._trigger_sync()
+            self._rt_completed = True
         return super().__enter__()
     async def __aenter__(self) -> Self:
         await self._main._trigger_async()
-        return self.__enter__(triggered=True)
+        self._rt_completed = True
+        return self.__enter__()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool:
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                 exc_tb: Optional[types.TracebackType]) -> bool:
         return self.__exit__(exc_type, exc_val, exc_tb)
 
     def __repr__(self) -> str:
