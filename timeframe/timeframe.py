@@ -12,6 +12,7 @@ import inspect
 A = TypeVar('A')
 K = TypeVar('K')
 
+
 class Emoji(enum.Enum):
     SUCCESS = '✅'
     FUTURE = '🟨'
@@ -122,7 +123,8 @@ class BaseFrame:
         return self
 
     def __repr__(self) -> str:
-        return f"{Emoji.translate(self.state).value}-{self._name}" + ("" if self.duration < 0.001 and self.state in (State.LOADING, State.FUTURE) else f" ({self.duration:08.3f}s)") # isinstance(self, Attempt) and
+        return f"{Emoji.translate(self.state).value}-{self._name}" + ("" if self.duration < 0.001 and self.state in (
+        State.LOADING, State.FUTURE) else f" ({self.duration:08.3f}s)")  # isinstance(self, Attempt) and
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -160,7 +162,7 @@ class BaseFrame:
             return result
         except IterationCompleted:
             return True
-        except:
+        except Exception:
             return False
 
 
@@ -188,6 +190,7 @@ class Attempt(BaseFrame):
             self._main._trigger_sync()
             self._rt_completed = True
         return super().__enter__()
+
     async def __aenter__(self) -> Self:
         await self._main._trigger_async()
         self._rt_completed = True
@@ -309,7 +312,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
     def print_mono(self) -> None:
         print(self.frame_format_mono())
 
-    def _recur_mono(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt, index: int = 0, ) -> None:
+    def _recur_mono(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt,
+                    index: int = 0, ) -> None:
         content += [f'{"  " * index}{source.__repr__()}']
         if isinstance(source, Attempt):
             return
@@ -339,8 +343,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
             self._recur_custom(content, index=index, source=item, style=style)
 
     async def _trigger_async(self) -> Any:
-        if self._rt[0] != None:
-            _rt =  cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
+        if self._rt[0] is not None:
+            _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
             if inspect.iscoroutinefunction(self._rt[0]):
                 self._re = await _rt[0](self, *_rt[1], **_rt[2])
             else:
@@ -348,18 +352,15 @@ class TimeFrame(BaseFrame, Generic[A, K]):
             return self._re
 
     def _trigger_sync(self) -> Any:
-        if self._rt[0] != None:
+        if self._rt[0] is not None:
             _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
             _re = _rt[0](self, *_rt[1], **_rt[2])
             if inspect.isawaitable(_re):
-                try:
-                    import threading
-                    thread = threading.Thread(target=asyncio.run, args=(_re,))
-                    # self._re = asyncio.get_running_loop().run_until_complete(_re)
-                    thread.start()
-                    thread.join(timeout=0.2)
-                except:
-                    traceback.print_tb()
+                import threading
+                thread = threading.Thread(target=asyncio.run, args=(_re,))
+                # self._re = asyncio.get_running_loop().run_until_complete(_re)
+                thread.start()
+                thread.join(timeout=0.2)
             else:
                 self._re = _re
             return self._re
