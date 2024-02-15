@@ -122,7 +122,7 @@ class BaseFrame:
         return self
 
     def __repr__(self) -> str:
-        return f"{Emoji.translate(self.state).value}-{self._name} ({self.duration:08.3f}s)"
+        return f"{Emoji.translate(self.state).value}-{self._name}" + ("" if self.duration < 0.001 and self.state in (State.LOADING, State.FUTURE) else f" ({self.duration:08.3f}s)") # isinstance(self, Attempt) and
 
     def __str__(self) -> str:
         return self.__repr__()
