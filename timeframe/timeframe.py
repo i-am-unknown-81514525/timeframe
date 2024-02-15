@@ -178,7 +178,9 @@ class Attempt(BaseFrame):
                  exc_tb: Optional[types.TracebackType]) -> bool:
         if exc_type is None:
             return super().__exit__(exc_type, exc_val, exc_tb)
-        if exc_type in self._parent.ignore_retries:
+        if (exc_type in self._parent.ignore_retries or
+                (self._parent._check_exc_subclass and
+                issubclass(exc_type, tuple(self._parent._ignore_retries)))):
             self.state = State.FATAL
             self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type.__name__}'
             super().__exit__(exc_type, exc_val, exc_tb)
@@ -202,7 +204,7 @@ class Attempt(BaseFrame):
 
 class Action(BaseFrame):
     def __init__(self, main: TimeFrame[A, K], parent: Event, name: Optional[str] = None, retries: int = 3,
-                 ignore_retries: Optional[Sequence[Type[BaseException]]] = None):
+                 ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False):
         real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
         self._ignore_retries = real_ignore_retries
         self._main = main
@@ -210,6 +212,7 @@ class Action(BaseFrame):
         self._frames: MutableSequence[Attempt] = []
         self._retries = retries
         self._curr_retries = 0
+        self._check_exc_subclass = check_exc_subclass
         super().__init__(name=name)
 
     def create(self) -> Attempt:
