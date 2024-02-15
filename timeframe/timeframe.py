@@ -193,10 +193,6 @@ class Attempt(BaseFrame):
         self._rt_completed = True
         return self.__enter__()
 
-    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
-                 exc_tb: Optional[types.TracebackType]) -> bool:
-        return self.__exit__(exc_type, exc_val, exc_tb)
-
     def __repr__(self) -> str:
         return super().__repr__() + (f" ({self._add_string})" if self._add_string else "")
 
