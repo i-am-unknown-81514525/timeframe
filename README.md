@@ -14,15 +14,22 @@ This project/file only uses standard libraries so installation of additional dep
 ```python
 import random, time
 from timeframe import TimeFrame
-with TimeFrame(name='Text request') as time_frame:
+async def func(timeframe: TimeFrame, *args, **kwargs): # Create rt(realtime) function 
+    timeframe.print_mono()
+    print(args, kwargs)
+    
+
+with TimeFrame('test args', name='Text request', rt=func, test_kwargs='test kwargs') as time_frame:
     with time_frame.create(name='Prompt') as group_prompt:
-        with group_prompt.create(name='Prompt request', retries=5) as event_frame:
+        with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
             function_call = False
             for frame in event_frame:
-                with frame:
+                async with frame:
                     time.sleep(random.uniform(0, 0.4))  # Stimulate doing network operation
-                    if random.random() < 0.7:
+                    if random.random() < 0.2:
                         raise ValueError  # Stimulate a complete random chance of a network error occur
+                    if random.random() < 0.3:
+                        raise TimeoutError # Stimulate a complete internet breakdown
                     if random.random() < 0.9:
                         function_call = True
         if function_call:
@@ -30,7 +37,7 @@ with TimeFrame(name='Text request') as time_frame:
                 time.sleep(random.uniform(0, 0.01))  # Stimulate doing network operation
             with group_prompt.create(name='Function Response', retries=5) as event_frame:
                 for frame in event_frame:
-                    with frame:
+                    async with frame:
                         time.sleep(random.uniform(0, 0.4))  # Stimulate doing network operation
                         if random.random() < 0.7:
                             raise ValueError  # Stimulate a complete random chance of a network error occur
