@@ -350,7 +350,14 @@ class TimeFrame(BaseFrame, Generic[A, K]):
             _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
             _re = _rt[0](self, *_rt[1], **_rt[2])
             if inspect.isawaitable(_re):
-                self._re = asyncio.get_event_loop().run_until_complete(_re)
+                try:
+                    import threading
+                    thread = threading.Thread(target=asyncio.run, args=(_re,))
+                    # self._re = asyncio.get_running_loop().run_until_complete(_re)
+                    thread.start()
+                    thread.join(timeout=0.2)
+                except:
+                    traceback.print_tb()
             else:
                 self._re = _re
             return self._re
