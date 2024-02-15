@@ -1,9 +1,11 @@
+import asyncio
+
 from timeframe import TimeFrame
 
-def func(timeframe: TimeFrame, *args, **kwargs):
+async def func(timeframe: TimeFrame, *args, **kwargs):
     timeframe.print_mono()
 
-def test() -> None:
+async def test() -> None:
     import random
     import time
 
@@ -12,7 +14,7 @@ def test() -> None:
             with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
                 function_call = False
                 for frame in event_frame:
-                    with frame:
+                    async with frame:
                         time.sleep(random.uniform(0, 0.4))  # Stimulate doing network operation
                         if random.random() < 0.2:
                             raise ValueError  # Stimulate a complete random chance of a network error occur
@@ -25,7 +27,7 @@ def test() -> None:
                     time.sleep(random.uniform(0, 0.01))  # Stimulate doing network operation
                 with group_prompt.create(name='Function Response', retries=5) as event_frame:
                     for frame in event_frame:
-                        with frame:
+                        async with frame:
                             time.sleep(random.uniform(0, 0.4))  # Stimulate doing network operation
                             if random.random() < 0.7:
                                 raise ValueError  # Stimulate a complete random chance of a network error occur
@@ -39,4 +41,4 @@ def test() -> None:
 
 
 if __name__ == '__main__':
-    test()
+    asyncio.run(test())
