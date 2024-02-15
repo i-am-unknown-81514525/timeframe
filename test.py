@@ -1,7 +1,7 @@
 from timeframe import TimeFrame
 
 def func(timeframe: TimeFrame, *args, **kwargs):
-    print(timeframe.frame_format_mono())
+    timeframe.print_mono()
 
 def test() -> None:
     import random
