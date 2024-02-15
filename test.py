@@ -22,7 +22,7 @@ async def test() -> None:
                         if random.random() < 0.2:
                             raise ValueError  # Stimulate a complete random chance of a network error occur
                         if random.random() < 0.3:
-                            raise TimeoutError
+                            raise TimeoutError # Stimulate a complete internet breakdown
                         if random.random() < 0.9:
                             function_call = True
             if function_call:
