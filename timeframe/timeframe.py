@@ -288,6 +288,14 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._frames.append(group)
         return group
 
+    def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> bool:
+        """Return a boolean value on whether it should continue recurring or stop"""
+        if isinstance(source, Attempt):
+            return False
+        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
+            return False
+        return True
+
     def frame_format_dc(self, limit: int = 1024) -> str | bool:
         for lim in range(3, 0, -1):
             formatted = self._format_dc(limit=lim)
@@ -306,9 +314,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         if index != 0:
             content += [f'{_get_space_dc(index)}{source.__repr__()}']
         index += 1
-        if index > limit or isinstance(source, Attempt):
-            return
-        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
+        if index > limit or not self._check_recur(source):
             return
         for item in source._frames:
             self._recur_dc(content, index=index, source=item, limit=limit)
@@ -324,9 +330,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
     def _recur_mono(self, content: list[str], source: TimeFrame[A, K] | Event | Action | Attempt,
                     index: int = 0, ) -> None:
         content += [f'{"  " * index}{source.__repr__()}']
-        if isinstance(source, Attempt):
-            return
-        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
+        if not self._check_recur(source):
             return
         index += 1
         for item in source._frames:
@@ -344,9 +348,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         if style[index] is not None:
             content += [f'{style[index]}{source.__repr__()}']
         index += 1
-        if isinstance(source, Attempt):
-            return
-        if isinstance(source, Action) and len(source._frames) == 1 and source._frames[0].state == State.SUCCESS:
+        if not self._check_recur(source):
             return
         for item in source._frames:
             self._recur_custom(content, index=index, source=item, style=style)
