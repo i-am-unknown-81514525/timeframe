@@ -275,6 +275,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._tb: list[str] = []
         self._rt: tuple[Optional[Callable[..., Any]], tuple[A, ...], dict[str, K]] = (rt, args, kwargs)
         self._re: Any = None
+        self._rt_completed: bool = False
         super().__init__(name=name)
 
     @property
@@ -378,3 +379,14 @@ class TimeFrame(BaseFrame, Generic[A, K]):
 
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        if not self._rt_completed:
+            self._trigger_sync()
+            self._rt_completed = True
+        return super().__exit__(exc_type, exc_val, exc_tb)
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool:
+        await self._trigger_async()
+        self._rt_completed = True
+        return await self.__aexit__(exc_type, exc_val, exc_tb)
