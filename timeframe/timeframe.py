@@ -259,8 +259,8 @@ class Event(BaseFrame):
         super().__init__(name=name)
 
     def create(self, name: Optional[str] = None, retries: int = 3,
-               ignore_retries: Optional[Sequence[Type[BaseException]]] = None) -> Action:
-        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries)
+               ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False) -> Action:
+        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries, check_exc_subclass=check_exc_subclass)
         self._frames.append(event)
         return event
 
