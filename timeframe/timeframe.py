@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import types
+from typing_extensions import TypeGuard
 from typing import *
 from collections.abc import Callable
 import enum
