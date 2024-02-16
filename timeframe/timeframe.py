@@ -382,13 +382,15 @@ class TimeFrame(BaseFrame, Generic[A, K]):
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                 exc_tb: Optional[types.TracebackType]) -> bool:
         if not self._rt_completed:
             self._trigger_sync()
             self._rt_completed = True
         return super().__exit__(exc_type, exc_val, exc_tb)
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> bool:
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                 exc_tb: Optional[types.TracebackType]) -> bool:
         await self._trigger_async()
         self._rt_completed = True
         return await self.__aexit__(exc_type, exc_val, exc_tb)
