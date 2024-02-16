@@ -291,7 +291,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
             return False
 
     def _format_dc(self, limit: int = 3) -> str:
-        content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
+        total_or_current = 'Current' if self.state in (State.LOADING, State.FUTURE) else 'Total'
+        content = [f'{total_or_current}: {self.duration:08.3f}s ({total_or_current} Frames: {len(self)})']
         self._recur_dc(content, self, limit=limit)
         return '\n'.join(content)
 
@@ -308,7 +309,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
             self._recur_dc(content, index=index, source=item, limit=limit)
 
     def frame_format_mono(self) -> str:
-        content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
+        total_or_current = 'Current' if self.state in (State.LOADING, State.FUTURE) else 'Total'
+        content = [f'{total_or_current}: {self.duration:08.3f}s ({total_or_current} Frames: {len(self)})']
         self._recur_mono(content, self, index=0)
         return '\n'.join(content)
 
@@ -329,7 +331,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
     def frame_format_custom(self, style: tuple[str | None, str | None, str | None, str | None] = (
             None, '\n', '-  ', '> - ')) -> str:
         """Use None on the index you don't want it to display in `style`, default at normal markdown settings"""
-        content = [f'Total: {self.duration:08.3f}s (Total Frames: {len(self)})']
+        total_or_current = 'Current' if self.state in (State.LOADING, State.FUTURE) else 'Total'
+        content = [f'{total_or_current}: {self.duration:08.3f}s ({total_or_current} Frames: {len(self)})']
         self._recur_custom(content, self, style=style)
         return '\n'.join(content)
 
