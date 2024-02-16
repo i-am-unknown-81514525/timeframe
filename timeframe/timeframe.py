@@ -289,7 +289,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._frames.append(group)
         return group
 
-    def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> bool:
+    def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> TypeGuard[Union[TimeFrame[A, K] | Event | Action]]:
         """Return a boolean value on whether it should continue recurring or stop"""
         if isinstance(source, Attempt):
             return False
@@ -317,6 +317,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         index += 1
         if index > limit or not self._check_recur(source):
             return
+
         for item in source._frames:
             self._recur_dc(content, index=index, source=item, limit=limit)
 
