@@ -62,7 +62,8 @@ class UsageWarning(Warning):
 
 
 def get_exc_src(exc_type: Type[BaseException]) -> str:
-    return exc_type.__module__ + "." if exc_type.__module__ is not None and exc_type.__module__ != str.__module__ else ""
+    module = exc_type.__module__
+    return module + "." if module is not None and module != str.__module__ else ""
 
 
 class BaseFrame:
@@ -79,7 +80,7 @@ class BaseFrame:
     @state.setter
     def state(self, state: State) -> None:
         if not isinstance(state, State):
-            raise ValueError(f'You can only set state with State enum')
+            raise ValueError('You can only set state with State enum')
         if state.value <= self._state.value:
             return
         self._state = state
@@ -127,7 +128,8 @@ class BaseFrame:
                 added_string1 += f'at TimeFrame \'{self._main._name}\''
             if isinstance(self, TimeFrame):
                 added_string1 += f'at TimeFrame \'{self._name}\''
-            formatted = f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\' {added_string1} with State {self.state.name}:\n{tb}'
+            formatted = (f'[{time.perf_counter():08.3f}s] Error raised on {self.__class__.__name__} \'{self._name}\'' +
+                         f' {added_string1} with State {self.state.name}:\n{tb}')
             if isinstance(self, (Attempt, Event, Action)):
                 self._main._tb.append(formatted)
             if isinstance(self, TimeFrame):
@@ -159,7 +161,7 @@ class BaseFrame:
             self.failed(tb='\n'.join(traceback.format_exception(exc_type, exc_val, exc_tb)))
         if isinstance(self, Attempt):
             if self.state not in (State.FAILED, State.FATAL):
-                raise IterationCompleted(f'Task have been completed')
+                raise IterationCompleted('Task have been completed')
             if self._parent.curr_retries >= self._parent.retries:
                 raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
         return True
@@ -311,7 +313,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         return group
 
     def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> TypeGuard[
-        Union[TimeFrame[A, K] | Event | Action]]:
+            Union[TimeFrame[A, K] | Event | Action]]:
         """Return a boolean value on whether it should continue recurring or stop"""
         if isinstance(source, Attempt):
             return False
