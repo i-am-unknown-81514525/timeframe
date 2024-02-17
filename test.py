@@ -14,7 +14,7 @@ async def test() -> None:
 
     with TimeFrame('test args', name='Text request', rt=func, test_kwargs='test kwargs') as time_frame:
         with time_frame.create(name='Prompt') as group_prompt:
-            with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,)) as event_frame:
+            with group_prompt.create(name='Prompt request', retries=5, ignore_retries=(TimeoutError,), check_exc_subclass=True) as event_frame:
                 function_call = False
                 for frame in event_frame:
                     async with frame:
