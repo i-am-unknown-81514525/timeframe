@@ -3,8 +3,11 @@ from __future__ import annotations
 import asyncio
 import types
 from typing import *
+
 if "TypeGuard" not in dir() and not TYPE_CHECKING:
     T = TypeVar('T')
+
+
     class TypeGuard(Generic[T]):
         pass
 from warnings import warn
@@ -52,6 +55,7 @@ class IterationCompleted(StopIteration):
 
 class IterationFailed(StopIteration):
     pass
+
 
 class UsageWarning(Warning):
     pass
@@ -242,7 +246,7 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
 
     def __next__(self) -> Attempt:
         if self._curr_retries >= self._retries:
-            raise StopIteration # IterationFailed
+            raise StopIteration  # IterationFailed
         if len(self._frames) >= 1:
             self._frames[-1].state = State.SUCCESS
             if self._frames[-1].state == State.SUCCESS:  # require for checking results from safe State writing
@@ -270,8 +274,10 @@ class Event(BaseFrame):
         super().__init__(name=name)
 
     def create(self, name: Optional[str] = None, retries: int = 3,
-               ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False) -> Action:
-        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries, check_exc_subclass=check_exc_subclass)
+               ignore_retries: Optional[Sequence[Type[BaseException]]] = None,
+               check_exc_subclass: bool = False) -> Action:
+        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries,
+                       check_exc_subclass=check_exc_subclass)
         self._frames.append(event)
         return event
 
@@ -304,7 +310,8 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._frames.append(group)
         return group
 
-    def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> TypeGuard[Union[TimeFrame[A, K] | Event | Action]]:
+    def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> TypeGuard[
+        Union[TimeFrame[A, K] | Event | Action]]:
         """Return a boolean value on whether it should continue recurring or stop"""
         if isinstance(source, Attempt):
             return False
@@ -404,7 +411,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         return super().__exit__(exc_type, exc_val, exc_tb)
 
     async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
-                 exc_tb: Optional[types.TracebackType]) -> bool:
+                        exc_tb: Optional[types.TracebackType]) -> bool:
         await self._trigger_async()
         self._rt_completed = True
         return await self.__aexit__(exc_type, exc_val, exc_tb)
