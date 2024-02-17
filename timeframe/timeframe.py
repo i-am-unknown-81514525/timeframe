@@ -175,7 +175,10 @@ class BaseFrame:
             return result
         except IterationCompleted:
             return True
-        except Exception:
+        except IterationFailed:
+            return False
+        except Exception:  # Unexpected
+            traceback.print_exc()
             return False
 
 
