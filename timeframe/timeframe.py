@@ -7,6 +7,7 @@ if "TypeGuard" not in dir() and not TYPE_CHECKING:
     T = TypeVar('T')
     class TypeGuard(Generic[T]):
         pass
+from warnings import warn
 from collections.abc import Callable
 import enum
 import time
@@ -50,6 +51,9 @@ class IterationCompleted(StopIteration):
 
 
 class IterationFailed(StopIteration):
+    pass
+
+class UsageWarning(Warning):
     pass
 
 
@@ -211,6 +215,14 @@ class Action(BaseFrame):
                  ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False):
         real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
         self._ignore_retries = real_ignore_retries
+        if len(self._ignore_retries) == 0 and check_exc_subclass:
+            msg = f'''
+You cannot set `check_exc_subclass` as True when no Exception type is provided in parameter `ignore_retries`
+Parameter Conflict:
+Trigger Event 1: `ignore_retries` at length {len(self._ignore_retries)} match trigger length == 0
+Trigger Event 2: `check_exc_subclass` at state {check_exc_subclass} match trigger value True
+Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
+            warn(msg, UsageWarning)
         self._main = main
         self._parent = parent
         self._frames: MutableSequence[Attempt] = []
