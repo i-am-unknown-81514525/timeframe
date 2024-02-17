@@ -232,9 +232,8 @@ class Action(BaseFrame):
         if self._curr_retries >= self._retries:
             raise StopIteration
         if len(self._frames) >= 1:
-            if self._frames[-1].state == State.LOADING:
-                self._frames[-1].state = State.SUCCESS
-            if self._frames[-1].state == State.SUCCESS:
+            self._frames[-1].state = State.SUCCESS
+            if self._frames[-1].state == State.SUCCESS: # require for checking results from safe State writing
                 raise StopIteration
         return self.create()
 
