@@ -8,7 +8,7 @@ Python timeframe tool for time monitoring for each event, error handling, traceb
 
 # How to install
 ```shell
-pip install timeframe_event
+pip install timeframe-event
 ```
 You can also copy timeframe.py from [GitHub](https://github.com/i-am-unknown-81514525/timeframe/blob/main/timeframe/timeframe.py)
 and drop it in your project
