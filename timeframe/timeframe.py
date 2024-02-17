@@ -242,11 +242,11 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
 
     def __next__(self) -> Attempt:
         if self._curr_retries >= self._retries:
-            raise StopIteration
+            raise StopIteration # IterationFailed
         if len(self._frames) >= 1:
             self._frames[-1].state = State.SUCCESS
-            if self._frames[-1].state == State.SUCCESS: # require for checking results from safe State writing
-                raise StopIteration
+            if self._frames[-1].state == State.SUCCESS:  # require for checking results from safe State writing
+                raise StopIteration  # IterationCompleted
         return self.create()
 
     @property
