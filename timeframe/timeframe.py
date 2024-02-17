@@ -7,7 +7,6 @@ from typing import *
 if "TypeGuard" not in dir() and not TYPE_CHECKING:
     T = TypeVar('T')
 
-
     class TypeGuard(Generic[T]):
         pass
 from warnings import warn
