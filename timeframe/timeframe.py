@@ -381,7 +381,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         for item in source._frames:
             self._recur_custom(content, index=index, source=item, style=style)
 
-    async def _trigger_async(self, **kwargs:dict[str, Any]) -> Any:
+    async def _trigger_async(self, **kwargs:K) -> Any:
         if self._rt[0] is not None:
             _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
             if inspect.iscoroutinefunction(self._rt[0]):
@@ -390,7 +390,7 @@ class TimeFrame(BaseFrame, Generic[A, K]):
                 self._re = await asyncio.to_thread(_rt[0], self, *_rt[1], **{**_rt[2], **kwargs})
             return self._re
 
-    def _trigger_sync(self, **kwargs:dict[str, Any]) -> Any:
+    def _trigger_sync(self, **kwargs:K) -> Any:
         if self._rt[0] is not None:
             _rt = cast(tuple[Callable[..., Any], tuple[A, ...], dict[str, K]], self._rt)
             _re = _rt[0](self, *_rt[1], **{**_rt[2], **kwargs})
