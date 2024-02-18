@@ -4,11 +4,12 @@ import asyncio
 import types
 from typing import *
 
-if "TypeGuard" not in dir() and not TYPE_CHECKING:
-    T = TypeVar('T')
+if "TypeGuard" not in dir():
+    if not TYPE_CHECKING:
+        T = TypeVar('T')
 
-    class TypeGuard(Generic[T]):
-        pass
+        class TypeGuard(Generic[T]):  # ignore:[no-redef]
+            pass
 from warnings import warn
 from collections.abc import Callable
 import enum
