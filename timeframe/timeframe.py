@@ -159,11 +159,6 @@ class BaseFrame:
             self.end()
         else:
             self.failed(tb='\n'.join(traceback.format_exception(exc_type, exc_val, exc_tb)))
-        if isinstance(self, Attempt):
-            if self.state not in (State.FAILED, State.FATAL):
-                raise IterationCompleted('Task have been completed')
-            if self._parent.curr_retries >= self._parent.retries:
-                raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
         return True
 
     async def __aenter__(self) -> Self:
@@ -188,35 +183,45 @@ class Attempt(BaseFrame):
         self._main = main
         self._parent = parent
         self._add_string = ''
-        self._rt_completed: bool = False
+        self._rt_handled: bool = False
         super().__init__(name=f'Attempt #{self._parent.curr_retries + 1}')
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
                  exc_tb: Optional[types.TracebackType]) -> bool:
-        if exc_type is None:
-            return super().__exit__(exc_type, exc_val, exc_tb)
-        if (exc_type in self._parent.ignore_retries or
+        state = True
+        if (exc_type is not None and (exc_type in self._parent.ignore_retries or
                 (self._parent._check_exc_subclass and
-                 issubclass(exc_type, tuple(self._parent._ignore_retries)))):
+                 issubclass(exc_type, tuple(self._parent._ignore_retries))))):
             self.state = State.FATAL
+            self._parent.state = State.FAILED
             self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type.__name__}'
-            super().__exit__(exc_type, exc_val, exc_tb)
-            return False
-        return super().__exit__(exc_type, exc_val, exc_tb)
-
-    def __enter__(self) -> Self:
-        if not self._rt_completed:
+            state = False
+        super_state = super().__exit__(exc_type, exc_val, exc_tb)
+        state = state and super_state
+        if not self._rt_handled:
             self._main._trigger_sync()
-            self._rt_completed = True
-        return super().__enter__()
+            self._rt_handled = True
+        if self.state not in (State.FAILED, State.FATAL):
+            raise IterationCompleted('Task have been completed')
+        if self._parent.curr_retries >= self._parent.retries:
+            raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
+        return state
 
-    async def __aenter__(self) -> Self:
-        await self._main._trigger_async()
-        self._rt_completed = True
-        return self.__enter__()
 
     def __repr__(self) -> str:
         return super().__repr__() + (f" ({self._add_string})" if self._add_string else "")
+
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
+                 exc_tb: Optional[types.TracebackType]) -> bool:
+        self._rt_handled = True
+        try:
+            result = self.__exit__(exc_type, exc_val, exc_tb)
+        except IterationCompleted:
+            result = True
+        except:
+            result = False
+        await self._main._trigger_async()
+        return result
 
 
 class Action(BaseFrame):
@@ -301,7 +306,6 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         self._tb: list[str] = []
         self._rt: tuple[Optional[Callable[..., Any]], tuple[A, ...], dict[str, K]] = (rt, args, kwargs)
         self._re: Any = None
-        self._rt_completed: bool = False
         super().__init__(name=name)
 
     @property
@@ -408,15 +412,4 @@ class TimeFrame(BaseFrame, Generic[A, K]):
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
-                 exc_tb: Optional[types.TracebackType]) -> bool:
-        if not self._rt_completed:
-            self._trigger_sync()
-            self._rt_completed = True
-        return super().__exit__(exc_type, exc_val, exc_tb)
 
-    async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
-                        exc_tb: Optional[types.TracebackType]) -> bool:
-        await self._trigger_async()
-        self._rt_completed = True
-        return await self.__aexit__(exc_type, exc_val, exc_tb)
