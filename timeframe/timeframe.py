@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
 import types
 from typing import *
 
@@ -60,6 +61,11 @@ class IterationFailed(StopIteration):
 class UsageWarning(Warning):
     pass
 
+@dataclass
+class InfoPack:
+    frame: Attempt
+    parent: Action
+    tb: tuple[Optional[Type[BaseException]], Optional[BaseException], Optional[types.TracebackType]]
 
 def get_exc_src(exc_type: Type[BaseException]) -> str:
     module = exc_type.__module__
@@ -199,7 +205,7 @@ class Attempt(BaseFrame):
         super_state = super().__exit__(exc_type, exc_val, exc_tb)
         state = state and super_state
         if not self._rt_handled:
-            self._main._trigger_sync()
+            self._main._trigger_sync(info=InfoPack(frame=self, parent=self._parent, tb=(exc_type, exc_val, exc_tb)))
             self._rt_handled = True
         if self.state not in (State.FAILED, State.FATAL):
             raise IterationCompleted('Task have been completed')
@@ -220,7 +226,7 @@ class Attempt(BaseFrame):
             result = True
         except:
             result = False
-        await self._main._trigger_async()
+        await self._main._trigger_async(info=InfoPack(frame=self, parent=self._parent, tb=(exc_type, exc_val, exc_tb)))
         return result
 
 
