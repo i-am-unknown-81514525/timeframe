@@ -281,6 +281,16 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
     def ignore_retries(self) -> Sequence[Type[BaseException]]:
         return self._ignore_retries
 
+    @property
+    def is_retry(self) -> bool:
+        if self._curr_retries >= self._retries:
+            return False
+        if any([f.state for f in self._frames if f.state in (State.SUCCESS, State.FATAL)]):
+            return False
+        if self.state == State.FAILED:
+            return False
+        return True
+
 
 class Event(BaseFrame):
     def __init__(self, main: TimeFrame[A, K], parent: TimeFrame[A, K], name: Optional[str] = None):
