@@ -9,7 +9,6 @@ if "TypeGuard" not in dir():
     if not TYPE_CHECKING:
         T = TypeVar('T')
 
-
         class TypeGuard(Generic[T]):
             pass
 from warnings import warn
@@ -62,13 +61,11 @@ class IterationFailed(StopIteration):
 class UsageWarning(Warning):
     pass
 
-
 @dataclass
 class InfoPack:
     frame: Attempt
     parent: Action
     tb: tuple[Optional[Type[BaseException]], Optional[BaseException], Optional[types.TracebackType]]
-
 
 def get_exc_src(exc_type: Type[BaseException]) -> str:
     module = exc_type.__module__
@@ -199,8 +196,8 @@ class Attempt(BaseFrame):
                  exc_tb: Optional[types.TracebackType]) -> bool:
         state = True
         if (exc_type is not None and (exc_type in self._parent.ignore_retries or
-                                      (self._parent._check_exc_subclass and
-                                       issubclass(exc_type, tuple(self._parent._ignore_retries))))):
+                (self._parent._check_exc_subclass and
+                 issubclass(exc_type, tuple(self._parent._ignore_retries))))):
             self.state = State.FATAL
             self._parent.state = State.FAILED
             self._add_string += f'Ignore retries by exception: {get_exc_src(exc_type)}{exc_type.__name__}'
@@ -216,11 +213,12 @@ class Attempt(BaseFrame):
             raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
         return state
 
+
     def __repr__(self) -> str:
         return super().__repr__() + (f" ({self._add_string})" if self._add_string else "")
 
     async def __aexit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
-                        exc_tb: Optional[types.TracebackType]) -> bool:
+                 exc_tb: Optional[types.TracebackType]) -> bool:
         self._rt_handled = True
         try:
             result = self.__exit__(exc_type, exc_val, exc_tb)
@@ -252,14 +250,6 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
         self._curr_retries = 0
         self._check_exc_subclass = check_exc_subclass
         super().__init__(name=name)
-
-    @property
-    def retries(self) -> int:
-        return self._retries
-
-    @property
-    def curr_retries(self) -> int:
-        return self._curr_retries
 
     def create(self) -> Attempt:
         frame = Attempt(main=self._main, parent=self)
@@ -427,3 +417,5 @@ class TimeFrame(BaseFrame, Generic[A, K]):
 
     def traceback_format(self) -> str:
         return '\n'.join(self._tb)
+
+
