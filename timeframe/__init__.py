@@ -5,4 +5,5 @@ from .timeframe import (TimeFrame,
                         IterationFailed,
                         IterationCompleted,
                         Emoji,
-                        State)
+                        State,
+                        InfoPack)
