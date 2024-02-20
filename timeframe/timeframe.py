@@ -291,6 +291,21 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
             return False
         return True
 
+    @property
+    def is_retry_muted(self) -> bool:
+        """Return True when retrying is stop due to exceed the retry limit
+        or receive ignored error from `ignore_retries` parameter
+        Would return False if retry is still available or Task ended at SUCCESS state"""
+        if self.is_retry:
+            return False  # Retry is not stopped
+        if self._curr_retries >= self._retries:
+            return True
+        if any([f.state for f in self._frames if f.state == State.FATAL]):
+            return True
+        if self.state == State.FAILED:
+            return True
+        return False
+
 
 class Event(BaseFrame):
     def __init__(self, main: TimeFrame[A, K], parent: TimeFrame[A, K], name: Optional[str] = None):
