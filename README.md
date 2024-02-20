@@ -1,9 +1,9 @@
 # timeframe
 Python timeframe tool for time monitoring for each event, error handling, traceback recording...
 
-[![Downloads](https://static.pepy.tech/badge/timeframe_event)](https://pepy.tech/project/timeframe_event)
-[![Downloads](https://static.pepy.tech/badge/timeframe_event/month)](https://pepy.tech/project/timeframe_event)
-[![Downloads](https://static.pepy.tech/badge/timeframe_event/week)](https://pepy.tech/project/timeframe_event)
+[![Downloads](https://static.pepy.tech/badge/timeframe_event)](https://pepy.tech/project/timeframe-event)
+[![Downloads](https://static.pepy.tech/badge/timeframe-event/month)](https://pepy.tech/project/timeframe-event)
+[![Downloads](https://static.pepy.tech/badge/timeframe-event/week)](https://pepy.tech/project/timeframe-event)
 [![PyPI version](https://badge.fury.io/py/timeframe-event.svg)](https://badge.fury.io/py/timeframe-event)
 
 # How to install
