@@ -282,7 +282,8 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
         return self._ignore_retries
 
     @property
-    def is_retry(self) -> bool:
+    def is_retrying(self) -> bool:
+        """Return a boolean value whether it would still retry or not"""
         if self._curr_retries >= self._retries:
             return False
         if any([f.state for f in self._frames if f.state in (State.SUCCESS, State.FATAL)]):
@@ -296,7 +297,7 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
         """Return True when retrying is stop due to exceed the retry limit
         or receive ignored error from `ignore_retries` parameter
         Would return False if retry is still available or Task ended at SUCCESS state"""
-        if self.is_retry:
+        if self.is_retrying:
             return False  # Retry is not stopped
         if self._curr_retries >= self._retries:
             return True
