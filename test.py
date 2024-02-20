@@ -1,11 +1,15 @@
 import asyncio
 
-from timeframe import TimeFrame
+from timeframe import TimeFrame, InfoPack
 
 
 async def func(timeframe: TimeFrame, *args, **kwargs):
     timeframe.print_mono()
     print(args, kwargs)
+    if kwargs.get('info'):
+        info: InfoPack = kwargs.get('info')
+        if info.parent.is_retry_muted:
+            print('All retry failed')
 
 
 async def test() -> None:
