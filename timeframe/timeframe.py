@@ -271,10 +271,12 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
 
     @property
     def curr_retries(self) -> int:
+        """Return an integer value of the current retries of the action"""
         return self._curr_retries
 
     @property
     def retries(self) -> int:
+        """Return the limit of retries of the actions"""
         return self._retries
 
     @property
