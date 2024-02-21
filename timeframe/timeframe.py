@@ -209,7 +209,7 @@ class Attempt(BaseFrame):
             self._rt_handled = True
         if self.state not in (State.FAILED, State.FATAL):
             raise IterationCompleted('Task have been completed')
-        if self._parent.curr_retries >= self._parent.retries:
+        if self._parent.curr_retries >= self._parent.retry_limit:
             raise IterationFailed(f'Failed after retry of {self._parent.curr_retries} attempts')
         return state
 
@@ -231,7 +231,7 @@ class Attempt(BaseFrame):
 
 
 class Action(BaseFrame):
-    def __init__(self, main: TimeFrame[A, K], parent: Event, name: Optional[str] = None, retries: int = 3,
+    def __init__(self, main: TimeFrame[A, K], parent: Event, name: Optional[str] = None, retry_limit: int = 3,
                  ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False):
         real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
         self._ignore_retries = real_ignore_retries
@@ -246,7 +246,7 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
         self._main = main
         self._parent = parent
         self._frames: MutableSequence[Attempt] = []
-        self._retries = retries
+        self._retries = retry_limit
         self._curr_retries = 0
         self._check_exc_subclass = check_exc_subclass
         super().__init__(name=name)
@@ -275,8 +275,14 @@ Warning: Trigger Event 1 and Trigger Event 2 should be mutually exclusive'''
         return self._curr_retries
 
     @property
+    def retry_limit(self) -> int:
+        """Return the limit of retries of the actions"""
+        return self._retries
+
+    @property
     def retries(self) -> int:
         """Return the limit of retries of the actions"""
+        warn("You should use `self.retry_limit` instead of `self.retries`", DeprecationWarning)
         return self._retries
 
     @property
@@ -317,10 +323,14 @@ class Event(BaseFrame):
         self._frames: MutableSequence[Action] = []
         super().__init__(name=name)
 
-    def create(self, name: Optional[str] = None, retries: int = 3,
+    def create(self, name: Optional[str] = None, retry_limit: int = 3,
                ignore_retries: Optional[Sequence[Type[BaseException]]] = None,
-               check_exc_subclass: bool = False) -> Action:
-        event = Action(main=self._main, parent=self, name=name, retries=retries, ignore_retries=ignore_retries,
+               check_exc_subclass: bool = False, *, retries: int = 3) -> Action:
+        if retries and not retry_limit:
+            warn('Usage of `retries` argument should be change to `retry_limit`', DeprecationWarning)
+        if retries and retry_limit and retries != retry_limit:
+            raise ValueError(f'You should not supply both `retry_limit` and `retries` arguments and give them different value (retry_limit={retry_limit}, retries={retries})')
+        event = Action(main=self._main, parent=self, name=name, retry_limit=retry_limit or retries, ignore_retries=ignore_retries,
                        check_exc_subclass=check_exc_subclass)
         self._frames.append(event)
         return event
