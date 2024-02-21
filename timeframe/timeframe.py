@@ -323,7 +323,7 @@ class Event(BaseFrame):
         self._frames: MutableSequence[Action] = []
         super().__init__(name=name)
 
-    def create(self, name: Optional[str] = None, retry_limit: int = 3,
+    def create(self, name: Optional[str] = None, retry_limit: int = 0,
                ignore_retries: Optional[Sequence[Type[BaseException]]] = None,
                check_exc_subclass: bool = False, *, retries: int = 3) -> Action:
         if retries and not retry_limit:
