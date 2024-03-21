@@ -150,7 +150,7 @@ class BaseFrame:
         return self.__repr__()
 
     def __len__(self) -> int:
-        data = getattr(self, '_frames', None)
+        data: list[Attempt | Action | Event] | None = getattr(self, '_frames', None)
         if data is None:
             return 1
         else:
