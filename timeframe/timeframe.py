@@ -231,7 +231,7 @@ class Attempt(BaseFrame):
 
 
 class Action(BaseFrame):
-    def __init__(self, main: TimeFrame[A, K], parent: Event, name: Optional[str] = None, retry_limit: int = 3,
+    def __init__(self, main: TimeFrame[A, K], parent: Union[Event, TimeFrame], name: Optional[str] = None, retry_limit: int = 3,
                  ignore_retries: Optional[Sequence[Type[BaseException]]] = None, check_exc_subclass: bool = False):
         real_ignore_retries: Sequence[Type[BaseException]] = ignore_retries or ()
         self._ignore_retries = real_ignore_retries
@@ -346,7 +346,7 @@ def _get_space_dc(index: int) -> str:
 
 class TimeFrame(BaseFrame, Generic[A, K]):
     def __init__(self, *args: A, name: Optional[str] = None, rt: Union[Callable[..., Any], None] = None, **kwargs: K):
-        self._frames: MutableSequence[Event] = []
+        self._frames: MutableSequence[Union[Event, Action]] = []
         self._tb: list[str] = []
         self._rt: tuple[Optional[Callable[..., Any]], tuple[A, ...], dict[str, K]] = (rt, args, kwargs)
         self._re: Any = None
@@ -362,6 +362,20 @@ class TimeFrame(BaseFrame, Generic[A, K]):
         group = Event(main=self, parent=self, name=name)
         self._frames.append(group)
         return group
+
+    def create_action(self, name: Optional[str] = None, retry_limit: int = 0,
+               ignore_retries: Optional[Sequence[Type[BaseException]]] = None,
+               check_exc_subclass: bool = False, *, retries: int = 3) -> Action:
+        if retries and not retry_limit:
+            warn('Usage of `retries` argument should be change to `retry_limit`', DeprecationWarning)
+        if retries and retry_limit and retries != retry_limit:
+            raise ValueError(
+                f'You should not supply both `retry_limit` and `retries` arguments and give them different value (retry_limit={retry_limit}, retries={retries})')
+        event = Action(main=self, parent=self, name=name, retry_limit=retry_limit or retries,
+                       ignore_retries=ignore_retries,
+                       check_exc_subclass=check_exc_subclass)
+        self._frames.append(event)
+        return event
 
     def _check_recur(self, source: TimeFrame[A, K] | Event | Action | Attempt) -> TypeGuard[
         Union[TimeFrame[A, K] | Event | Action]]:
