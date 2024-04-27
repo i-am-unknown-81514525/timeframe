@@ -8,7 +8,7 @@ package_dir = {""= "timeframe"}
 [project]
 description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
 name = "timeframe-event"
-version = "1.1.7"
+version = "1.1.8"
 authors = [
     {"name"="i-am-unknown", "email"="iamaunknownpeople@protonmail.com"}
 ]
@@ -27,7 +27,7 @@ Issues = "https://github.com/i-am-unknown-81514525/timeframe/issues"
 [tool.poetry]
 description = "Python timeframe tool for time monitoring for each event, error handling, traceback recording..."
 name = "timeframe-event"
-version = "1.1.7"
+version = "1.1.8"
 authors = ["i-am-unknown <iamaunknownpeople@protonmail.com>"]
 readme = 'README.md'
 repository = "https://github.com/i-am-unknown-81514525/timeframe/tree/main"
